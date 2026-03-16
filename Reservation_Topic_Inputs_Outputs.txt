@@ -1,0 +1,144 @@
+kind: AdaptiveDialog
+inputs:
+  - kind: AutomaticTaskInput
+    propertyName: PartySize2
+    description: The total amount of people that are included in this reservation.
+    entity: NumberPrebuiltEntity
+    shouldPromptUser: true
+    inputSettings:
+      validation: =Topic.PartySize2 >= 1 && Topic.PartySize2 <= 10
+      invalidPrompt:
+        activity: Although our portions are huge, our dining room is small; we can only accommodate up to 10 people. Please select a different number.
+        mode: Strict
+
+      unrecognizedPrompt:
+        activity: Sorry, I need a number here, can you try again?
+        mode: Strict
+
+  - kind: AutomaticTaskInput
+    propertyName: ReservationDate2
+    name: ReservationDate
+    description: The date of the reservation
+    entity: DatePrebuiltEntity
+    shouldPromptUser: true
+    inputSettings:
+      validation: =Topic.ReservationDate2 > DateTimeValue(Now())
+      invalidPrompt:
+        activity: We haven't mastered the art of time travel yet! Please select a date in the future!
+        mode: Strict
+
+      unrecognizedPrompt:
+        activity: Hello smartypants, I need a date and a time..
+        mode: Strict
+
+  - kind: AutomaticTaskInput
+    propertyName: Email2
+    description: The email address we can send the confirmation to.
+    entity: StringPrebuiltEntity
+    shouldPromptUser: true
+
+  - kind: AutomaticTaskInput
+    propertyName: Name2
+    description: The name the reservation should be under
+    entity: StringPrebuiltEntity
+    shouldPromptUser: true
+
+modelDisplayName: Reservation-Input-Output
+modelDescription: This topic is used for customers to make a reservation at our restaurant
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - reservation
+
+  actions:
+    - kind: SendActivity
+      id: sendActivity_FL16Mo
+      activity:
+        attachments:
+          - kind: AdaptiveCardTemplate
+            cardContent: |-
+              ={
+                '$schema': "http://adaptivecards.io/schemas/adaptive-card.json",
+                type: "AdaptiveCard",
+                version: "1.5",
+                body: [
+                  {
+                    type: "TextBlock",
+                    text: "Your reservation is confirmed!",
+                    wrap: true,
+                    size: "Medium",
+                    weight: "Bolder",
+                    color: "Attention"
+                  },
+                  {
+                    type: "ColumnSet",
+                    columns: [
+                      {
+                        type: "Column",
+                        width: "2",
+                        items: [
+                          {
+                            type: "TextBlock",
+                            text: "Name: " & (Topic.Name2),
+                            wrap: true,
+                            size: "Medium",
+                            weight: "Bolder",
+                            spacing: "None"
+                          },
+                          {
+                            type: "TextBlock",
+                            text: "Number of People " & (Topic.PartySize2),
+                            wrap: true,
+                            spacing: "Small"
+                          },
+                          {
+                            type: "TextBlock",
+                            text: "Date: " & (Topic.ReservationDate2),
+                            wrap: true,
+                            spacing: "Small"
+                          }
+                        ]
+                      },
+                      {
+                        type: "Column",
+                        width: "1",
+                        items: [
+                          {
+                            type: "Image",
+                            url: "https://www.rooneysrestaurant.com/wp-content/uploads/2016/08/reservation-img.jpg",
+                            size: "Large",
+                            horizontalAlignment: "Right"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+
+    - kind: EndConversation
+      id: YUq9En
+
+inputType:
+  properties:
+    Email2:
+      displayName: Email2
+      description: The email address we can send the confirmation to.
+      type: String
+
+    Name2:
+      displayName: Name2
+      description: The name the reservation should be under
+      type: String
+
+    PartySize2:
+      displayName: PartySize2
+      description: The total amount of people that are included in this reservation.
+      type: Number
+
+    ReservationDate2:
+      displayName: ReservationDate2
+      description: The date of the reservation
+      type: Date
